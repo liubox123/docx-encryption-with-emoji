@@ -1,0 +1,70 @@
+﻿/* src/styles/theme.css */
+
+/* 默认主题 */
+:root {
+    --background-color: #e0f7fa;
+    --sidebar-background-color: #00796b;
+    --sidebar-hover-color: #004d40;
+    --button-background-color: #00796b;
+    --button-hover-color: #004d40;
+    --text-color: #000;
+    --border-color: #ccc;
+    --select-file-btn-bg: #00796b;
+    --select-file-btn-hover-bg: #004d40;
+    --process-btn-bg: #4db6ac;
+    --process-btn-hover-bg: #00897b;
+    --reverse-process-btn-bg: #80cbc4;
+    --reverse-process-btn-hover-bg: #26a69a;
+}
+  
+/* 现代化主题 */
+[data-theme="modern"] {
+    --background-color: #1e1e1e;
+    --sidebar-background-color: #252526;
+    --sidebar-hover-color: #3c3c3c;
+    --button-background-color: #007acc;
+    --button-hover-color: #005a9e;
+    --text-color: #000; /* 将文字颜色设置为黑色 */
+    --border-color: #3c3c3c;
+    --select-file-btn-bg: #007acc;
+    --select-file-btn-hover-bg: #005a9e;
+    --process-btn-bg: #4db6ac;
+    --process-btn-hover-bg: #00897b;
+    --reverse-process-btn-bg: #80cbc4;
+    --reverse-process-btn-hover-bg: #26a69a;
+}
+  
+body {
+    background-color: var(--background-color);
+    color: var(--text-color);
+}
+  
+.sidebar {
+    background-color: var(--sidebar-background-color);
+}
+  
+.sidebar a:hover {
+    background-color: var(--sidebar-hover-color);
+}
+  
+button {
+    background-color: var(--button-background-color);
+    color: var(--text-color);
+    border: none;
+    border-radius: 5px;
+    padding: 10px 20px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+  
+button:hover {
+    background-color: var(--button-hover-color);
+}
+  
+.right-panel, .left-panel {
+    border: 1px solid var(--border-color);
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}

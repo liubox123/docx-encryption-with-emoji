@@ -1,0 +1,26 @@
+{
+  "$schema": "../gen/schemas/desktop-schema.json",
+  "identifier": "default",
+  "description": "Capability for the main window",
+  "windows": [
+    "main"
+  ],
+  "permissions": [
+    "core:default",
+    "shell:allow-open",
+    "fs:default",
+    {
+      "identifier": "fs:allow-read",
+      "allow": [
+        { "path": "$DOCUMENT/*" },
+       { "path": "$APPDATA/**" },
+       {"path":"$HOME/**"}
+      ]
+    },
+    {
+      "identifier": "fs:allow-read-file",
+      "allow": [{ "path": "$DOCUMENT/*" }, { "path": "$APPDATA/**" },{ "path": "$HOME/**" }]
+    },
+    "dialog:default"
+  ]
+}
