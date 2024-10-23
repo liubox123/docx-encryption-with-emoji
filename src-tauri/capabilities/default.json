@@ -8,7 +8,7 @@
   "permissions": [
     "core:default",
     "shell:allow-open",
-    "fs:default",
+    "fs:read-all",
     {
       "identifier": "fs:allow-read",
       "allow": [
@@ -18,8 +18,41 @@
       ]
     },
     {
+      "identifier": "fs:scope",
+      "allow": [
+        "$DESKTOP",
+        "$DESKTOP/**",
+        "$APPCONFIG",
+        "/var/home/*/.config/dev.tormak.steam-art-manager",
+        "$APPCONFIG/**",
+        "/var/home/*/.config/dev.tormak.steam-art-manager/**",
+        "$Home/**",
+        "/var/home/*/**",
+        "/home/*/.steam/**",
+        "/home/*/.local/share/steam/**",
+        "$DATA",
+        "$DATA/**",
+        "$APPLOG",
+        "$APPLOG/**",
+        "$APPCACHE",
+        "/var/home/*/.cache/dev.tormak.steam-art-manager",
+        "$APPCACHE/**",
+        "/var/home/*/.cache/dev.tormak.steam-art-manager/**",
+        "C:/Users/*/scoop/persist/**",
+        "C:/**",
+        "D:/**",
+        "E:/**",
+        "F:/**",
+        "G:/**",
+        "H:/**",
+        "I:/**",
+        "J:/**",
+        "K:/**"
+      ]
+    },
+    {
       "identifier": "fs:allow-read-file",
-      "allow": [{ "path": "$DOCUMENT/*" }, { "path": "$APPDATA/**" },{ "path": "$HOME/**" }]
+      "allow": [{ "path": "$DOCUMENT/**" }, { "path": "$APPDATA/**" },{ "path": "$HOME/**" }]
     },
     "dialog:default"
   ]

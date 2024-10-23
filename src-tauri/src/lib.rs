@@ -220,12 +220,20 @@ fn replace_text_with_db(state: State<AppState>, input: String, reverse: bool) ->
     while let Some(row) = rows.next().map_err(|e| e.to_string())? {
         let original_word: String = row.get(0).map_err(|e| e.to_string())?;
         let replacement_word: String = row.get(1).map_err(|e| e.to_string())?;
+        
+        // 打印数据库中的字典为 Unicode 串
+        println!("original_word: {} unicode: {:?}", original_word, original_word.chars().map(|c| c.escape_unicode().to_string()).collect::<Vec<_>>());
+        println!("replacement_word: {} unicode: {:?}", replacement_word, replacement_word.chars().map(|c| c.escape_unicode().to_string()).collect::<Vec<_>>());
+
         if reverse {
             replacements.push((replacement_word, original_word)); // 反向替换
         } else {
             replacements.push((original_word, replacement_word)); // 正向替换
         }
     }
+
+    // 打印输入字符串为 Unicode 串
+    println!("input: {} unicode: {:?}", input, input.chars().map(|c| c.escape_unicode().to_string()).collect::<Vec<_>>());
 
     // 替换文本
     let mut output = input;
@@ -236,6 +244,66 @@ fn replace_text_with_db(state: State<AppState>, input: String, reverse: bool) ->
     Ok(output)
 }
 
+#[tauri::command]
+fn convert_to_unicode_and_reverse(state: State<AppState>, input: String) -> Result<String, String> {
+    // 将输入字符串转换为 Unicode 编码
+    let unicode_string = input.chars()
+        .map(|c| format!("\\u{:04x}", c as u32))
+        .collect::<String>();
+
+    // 打印 Unicode 编码
+    println!("Unicode string: {}", unicode_string);
+
+    // 反向替换
+    let db = state.db.lock().unwrap();
+    let mut stmt = db.prepare("SELECT find, replace FROM replacements").unwrap();
+    let mut replacements = Vec::new();
+    let mut rows = stmt.query([]).map_err(|e| e.to_string())?;
+    while let Some(row) = rows.next().map_err(|e| e.to_string())? {
+        let original_word: String = row.get(0).map_err(|e| e.to_string())?;
+        let replacement_word: String = row.get(1).map_err(|e| e.to_string())?;
+        replacements.push((replacement_word, original_word)); // 反向替换
+    }
+
+    let mut output = unicode_string.clone();
+    for (find, replace) in replacements {
+        output = output.replace(&find, &replace);
+    }
+
+    Ok(output)
+}
+
+
+#[tauri::command]
+fn unicode_to_text_and_reverse(state: State<AppState>, input: String) -> Result<String, String> {
+    // 将 Unicode 编码转换回文本
+    let text = input.replace("\\u", "")
+        .split_whitespace()
+        .map(|u| u32::from_str_radix(u, 16).ok().and_then(std::char::from_u32))
+        .collect::<Option<String>>()
+        .ok_or("Invalid Unicode input")?;
+
+    // 打印转换后的文本
+    println!("Converted text: {}", text);
+
+    // 反向替换
+    let db = state.db.lock().unwrap();
+    let mut stmt = db.prepare("SELECT find, replace FROM replacements").unwrap();
+    let mut replacements = Vec::new();
+    let mut rows = stmt.query([]).map_err(|e| e.to_string())?;
+    while let Some(row) = rows.next().map_err(|e| e.to_string())? {
+        let original_word: String = row.get(0).map_err(|e| e.to_string())?;
+        let replacement_word: String = row.get(1).map_err(|e| e.to_string())?;
+        replacements.push((replacement_word, original_word)); // 反向替换
+    }
+
+    let mut output = text.clone();
+    for (find, replace) in replacements {
+        output = output.replace(&find, &replace);
+    }
+
+    Ok(output)
+}
 // fn main() {
 //     tauri::Builder::default()
 
@@ -262,10 +330,13 @@ pub fn run() {
         get_replacements,
         process_docx,
         handle_dictionary_file,
-        replace_text_with_db
+        replace_text_with_db,
+        convert_to_unicode_and_reverse,
+        unicode_to_text_and_reverse
     ])
     .plugin(tauri_plugin_fs::init())
     .plugin(tauri_plugin_dialog::init())
     .run(tauri::generate_context!())
     .expect("error while running tauri application");
 }
+

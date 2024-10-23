@@ -5,6 +5,8 @@
     <div class="button-container">
       <button @click="replaceText">Replace</button>
       <button @click="reverseReplaceText">Reverse Replace</button>
+      <button @click="convertToUnicode">Convert to Unicode</button>
+      <button @click="unicodeToTextAndReverseReplace">Unicode to Text & Reverse Replace</button>
       <button @click="copyToClipboard">Copy Result to Clipboard</button>
     </div>
     <textarea v-model="outputText" placeholder="Replaced text will appear here..." readonly></textarea>
@@ -34,6 +36,16 @@ export default {
         this.outputText = await invoke("replace_text_with_db", { input: this.inputText, reverse: true });
       } catch (error) {
         console.error("Error reversing text:", error);
+      }
+    },
+    async convertToUnicode() {
+      this.outputText = Array.from(this.inputText).map(char => `\\u${char.charCodeAt(0).toString(16).padStart(4, '0')}`).join(' ');
+    },
+    async unicodeToTextAndReverseReplace() {
+      try {
+        this.outputText = await invoke("unicode_to_text_and_reverse", { input: this.inputText });
+      } catch (error) {
+        console.error("Error converting unicode to text and reversing:", error);
       }
     },
     copyToClipboard() {
