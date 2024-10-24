@@ -7,7 +7,7 @@
         <li><router-link to="/text-replacement">Text Replacement</router-link></li>
       </ul>
     </div>
-    <div class="content">
+    <div style="flex: 1;padding: 0px; display: flex;">
       <router-view></router-view>
     </div>
   </div>

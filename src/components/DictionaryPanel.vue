@@ -3,6 +3,7 @@
     <h2>Replacement Dictionary</h2>
     <div class="file-selection">
       <button @click="selectDictionaryFile">Select Dictionary File</button>
+      <button @click="showBatchAddDialog = true">Batch Add</button>
     </div>
     <div class="dictionary-table-container">
       <table class="dictionary-table">
@@ -29,6 +30,16 @@
       <input v-model="newReplace" placeholder="Replace With" />
       <button @click="addReplacement">Add</button>
     </div>
+    <div v-if="showBatchAddDialog" class="overlay">
+      <div class="batch-add-dialog">
+        <div class="input-container" contenteditable="true" @input="handleInput" ref="inputContainer">
+          <!-- 这里不再实时更新错误状态 -->
+        </div>
+        <textarea v-model="batchReplaceText" placeholder="Generated emojis" readonly></textarea>
+        <button @click="batchAddReplacements">Submit</button>
+        <button @click="showBatchAddDialog = false">Cancel</button>
+      </div>
+    </div>
   </div>
 </template>
   
@@ -44,7 +55,12 @@ export default {
     return {
       replacements: [],
       newFind: "",
-      newReplace: ""
+      newReplace: "",
+      showBatchAddDialog: false,
+      batchAddText: "",
+      batchAddArray: [],
+      batchReplaceText: "",
+      hasError: false
     };
   },
   mounted() {
@@ -111,6 +127,58 @@ export default {
         }
       } catch (error) {
         console.error('Error selecting file:', error);
+      }
+    },
+    handleInput() {
+      const inputText = this.$refs.inputContainer.innerText.trim();
+      const words = inputText.split(' ');
+      this.batchAddArray = words.map(word => ({
+        text: word,
+        error: false
+      }));
+      this.autoFillBatchReplace();
+    },
+    autoFillBatchReplace() {
+      this.batchReplaceText = this.batchAddArray.map(word => this.generateUniqueEmojiString(Array.from(word.text).length)).join(' ');
+    },
+    async batchAddReplacements() {
+      let hasError = false;
+      for (let i = 0; i < this.batchAddArray.length; i++) {
+        const word = this.batchAddArray[i];
+        if (word.text && this.batchReplaceText.split(' ')[i]) {
+          try {
+            const result = await this.addReplacement(word.text, this.batchReplaceText.split(' ')[i]);
+            if (!result.startsWith("替换项添加成功")) {
+              word.error = true;
+              hasError = true;
+            } else {
+              word.text = ''; // 清空成功的项
+            }
+          } catch (e) {
+            word.error = true;
+            hasError = true;
+          }
+        }
+      }
+      this.batchAddArray = this.batchAddArray.filter(word => word.text !== ''); // 过滤掉成功的项
+      this.updateInputContainer();
+      if (!hasError) {
+        this.batchReplaceText = ''; // 清空 emoji 框
+      }
+      this.getReplacements();
+    },
+    updateInputContainer() {
+      this.$refs.inputContainer.innerHTML = this.batchAddArray.map(word => 
+        `<span style="background-color: ${word.error ? 'red' : 'transparent'};">${word.text}</span>`
+      ).join(' ');
+    },
+    async addReplacement(find, replace) {
+      try {
+        const result = await invoke("add_replacement", { find, replace });
+        return result;
+      } catch (e) {
+        ElMessage.error(e);
+        throw e;
       }
     }
   }
@@ -197,5 +265,59 @@ button:hover {
 
 .delete-btn:hover {
   background-color: #c82333;
+}
+
+.overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000; /* 确保浮动窗体在最上层 */
+}
+
+.batch-add-dialog {
+  background-color: white;
+  padding: 20px;
+  border-radius: 8px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  width: 600px; /* 增加宽度 */
+  height: 400px; /* 增加高度 */
+  max-width: 90%;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  z-index: 1001; /* 确保对话框在 overlay 之上 */
+}
+
+.input-container {
+  flex: 1;
+  width: 96%;
+  padding: 10px;
+  border: 1px solid var(--border-color);
+  border-radius: 4px;
+  min-height: 50px;
+  overflow-y: auto;
+  white-space: pre-wrap;
+  word-wrap: break-word;
+}
+
+textarea {
+  flex: 1;
+  width: 96%;
+  padding: 10px;
+  border: 1px solid var(--border-color);
+  border-radius: 4px;
+  resize: none; /* 禁止调整大小 */
+}
+
+.batch-replace-container {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
 }
 </style>

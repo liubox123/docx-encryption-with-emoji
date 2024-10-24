@@ -101,8 +101,9 @@ export default {
 <style scoped>
 .right-panel {
   flex: 1;
-  border: 1px solid var(--border-color);
-  /* padding: 20px; */
+  /* flex-grow: 1; */
+  border: 0px solid var(--border-color);
+  padding: 0px;
   border-radius: 8px;
   background-color: var(--background-color);
   height: 100%;

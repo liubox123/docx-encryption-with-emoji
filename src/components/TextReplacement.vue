@@ -61,18 +61,21 @@ export default {
 
 <style scoped>
 .text-replacement {
-  padding: 20px;
-  border: 1px solid var(--border-color);
+  padding: 0px;
+  border: 0px solid var(--border-color);
   border-radius: 8px;
   background-color: var(--background-color);
+  width: 100%;
+  height: 100%;
+  box-sizing: border-box;
 }
 
 textarea {
   width: 100%;
-  height: 150px;
+  height: 30%;
   margin-bottom: 20px;
-  padding: 10px;
-  border: 1px solid var(--border-color);
+  padding: 0px;
+  border: 0px solid var(--border-color);
   border-radius: 4px;
   resize: none;
 }
