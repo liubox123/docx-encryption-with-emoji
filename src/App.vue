@@ -1,10 +1,14 @@
 <template>
   <div class="app-container">
     <div class="sidebar">
+      <select v-model="currentLanguage" @change="changeLanguage" class="language-selector">
+        <option value="zh">中文</option>
+        <option value="en">English</option>
+      </select>
       <ul>
-        <li><router-link to="/dictionary">Dictionary</router-link></li>
-        <li><router-link to="/file">File</router-link></li>
-        <li><router-link to="/text-replacement">Text Replacement</router-link></li>
+        <li><router-link to="/dictionary">{{ $t('dictionary') }}</router-link></li>
+        <li><router-link to="/file">{{ $t('file') }}</router-link></li>
+        <li><router-link to="/text-replacement">{{ $t('textReplacement') }}</router-link></li>
       </ul>
     </div>
     <div style="flex: 1;padding: 0px; display: flex;">
@@ -15,12 +19,18 @@
 
 <script>
 import './styles/theme.css';
+import { useI18n } from 'vue-i18n';
 
 export default {
   name: 'App',
+  setup() {
+    const { t, locale } = useI18n();
+    return { t, locale };
+  },
   data() {
     return {
-      currentTheme: 'default'
+      currentTheme: 'default',
+      currentLanguage: 'zh'
     };
   },
   methods: {
@@ -53,6 +63,9 @@ export default {
         root.style.setProperty('--reverse-process-btn-bg', '#80cbc4');
         root.style.setProperty('--reverse-process-btn-hover-bg', '#26a69a');
       }
+    },
+    changeLanguage() {
+      this.locale = this.currentLanguage;
     }
   }
 };
@@ -100,5 +113,15 @@ button {
   border-radius: 5px;
   cursor: pointer;
   transition: background-color 0.3s;
+}
+
+.language-selector {
+  width: 100%;
+  padding: 8px;
+  margin-bottom: 15px;
+  border-radius: 4px;
+  border: 1px solid var(--border-color);
+  background-color: var(--background-color);
+  color: var(--text-color);
 }
 </style>

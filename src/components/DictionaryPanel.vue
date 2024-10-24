@@ -1,17 +1,17 @@
 ﻿<template>
   <div class="left-panel">
-    <h2>Replacement Dictionary</h2>
+    <h2>{{ $t('replacementDictionary') }}</h2>
     <div class="file-selection">
-      <button @click="selectDictionaryFile">Select Dictionary File</button>
-      <button @click="showBatchAddDialog = true">Batch Add</button>
+      <button @click="selectDictionaryFile">{{ $t('selectDictionaryFile') }}</button>
+      <button @click="showBatchAddDialog = true">{{ $t('batchAdd') }}</button>
     </div>
     <div class="dictionary-table-container">
       <table class="dictionary-table">
         <thead>
           <tr>
-            <th>Find</th>
-            <th>Replace With</th>
-            <th>Action</th>
+            <th>{{ $t('find') }}</th>
+            <th>{{ $t('replaceWith') }}</th>
+            <th>{{ $t('action') }}</th>
           </tr>
         </thead>
         <tbody>
@@ -19,25 +19,24 @@
             <td>{{ replacement.find }}</td>
             <td>{{ replacement.replace }}</td>
             <td>
-              <button class="delete-btn" @click="deleteReplacement(replacement.id)">Delete</button>
+              <button class="delete-btn" @click="deleteReplacement(replacement.id)">{{ $t('delete') }}</button>
             </td>
           </tr>
         </tbody>
       </table>
     </div>
     <div class="add-replacement">
-      <input v-model="newFind" placeholder="Find" @input="autoFillReplace" />
-      <input v-model="newReplace" placeholder="Replace With" />
-      <button @click="addReplacement">Add</button>
+      <input v-model="newFind" :placeholder="$t('find')" @input="autoFillReplace" />
+      <input v-model="newReplace" :placeholder="$t('replaceWith')" />
+      <button @click="addReplacement">{{ $t('add') }}</button>
     </div>
     <div v-if="showBatchAddDialog" class="overlay">
       <div class="batch-add-dialog">
         <div class="input-container" contenteditable="true" @input="handleInput" ref="inputContainer">
-          <!-- 这里不再实时更新错误状态 -->
         </div>
-        <textarea v-model="batchReplaceText" placeholder="Generated emojis" readonly></textarea>
-        <button @click="batchAddReplacements">Submit</button>
-        <button @click="showBatchAddDialog = false">Cancel</button>
+        <textarea v-model="batchReplaceText" :placeholder="$t('generatedEmojis')" readonly></textarea>
+        <button @click="batchAddReplacements">{{ $t('submit') }}</button>
+        <button @click="showBatchAddDialog = false">{{ $t('cancel') }}</button>
       </div>
     </div>
   </div>
@@ -48,9 +47,14 @@ import { invoke } from "@tauri-apps/api/core";
 import { ElMessage } from 'element-plus';
 import allEmojis from '../assets/emojis.json';
 import { open } from "@tauri-apps/plugin-dialog";
+import { useI18n } from 'vue-i18n';
 
 export default {
   name:'DictionaryPanel',
+  setup() {
+    const { t } = useI18n();
+    return { t };
+  },
   data() {
     return {
       replacements: [],
@@ -75,7 +79,7 @@ export default {
 
       try {
         const result = await invoke("add_replacement", { find: this.newFind, replace: this.newReplace });
-        if (result.startsWith("替换项添加成功")) {
+        if (result.startsWith(this.t('replacementAddedSuccessfully'))) {
           this.getReplacements();
         } else {
           ElMessage.error(result);
@@ -148,7 +152,7 @@ export default {
         if (word.text && this.batchReplaceText.split(' ')[i]) {
           try {
             const result = await this.addReplacement(word.text, this.batchReplaceText.split(' ')[i]);
-            if (!result.startsWith("替换项添加成功")) {
+            if (!result.startsWith(this.t('replacementAddedSuccessfully'))) {
               word.error = true;
               hasError = true;
             } else {

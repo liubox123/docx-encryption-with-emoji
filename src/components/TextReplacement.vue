@@ -1,22 +1,27 @@
 ﻿<template>
   <div class="text-replacement">
-    <h2>Text Replacement</h2>
-    <textarea v-model="inputText" placeholder="Enter text here..."></textarea>
+    <h2>{{ $t('textReplacement') }}</h2>
+    <textarea v-model="inputText" :placeholder="$t('enterTextHere')"></textarea>
     <div class="button-container">
-      <button @click="replaceText">Replace</button>
-      <button @click="reverseReplaceText">Reverse Replace</button>
-      <button @click="convertToUnicode">Convert to Unicode</button>
-      <button @click="unicodeToTextAndReverseReplace">Unicode to Text & Reverse Replace</button>
-      <button @click="copyToClipboard">Copy Result to Clipboard</button>
+      <button @click="replaceText">{{ $t('replace') }}</button>
+      <button @click="reverseReplaceText">{{ $t('reverseReplace') }}</button>
+      <button @click="convertToUnicode">{{ $t('convertToUnicode') }}</button>
+      <button @click="unicodeToTextAndReverseReplace">{{ $t('unicodeToTextAndReverseReplace') }}</button>
+      <button @click="copyToClipboard">{{ $t('copyResultToClipboard') }}</button>
     </div>
-    <textarea v-model="outputText" placeholder="Replaced text will appear here..." readonly></textarea>
+    <textarea v-model="outputText" :placeholder="$t('replacedTextWillAppearHere')" readonly></textarea>
   </div>
 </template>
 
 <script>
+import { useI18n } from 'vue-i18n';
 import { invoke } from "@tauri-apps/api/core";
 
 export default {
+  setup() {
+    const { t } = useI18n();
+    return { t };
+  },
   data() {
     return {
       inputText: '',
@@ -50,9 +55,9 @@ export default {
     },
     copyToClipboard() {
       navigator.clipboard.writeText(this.outputText).then(() => {
-        alert('Text copied to clipboard!');
+        alert(this.t('textCopiedToClipboard'));
       }).catch(err => {
-        console.error('Failed to copy text: ', err);
+        console.error(this.t('failedToCopyText'), err);
       });
     }
   }

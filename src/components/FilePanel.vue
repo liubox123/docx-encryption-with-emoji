@@ -1,13 +1,13 @@
 ﻿<template>
   <div class="right-panel">
-    <h2>File Processing</h2>
+    <h2>{{ $t('fileProcessing') }}</h2>
     <div class="button-container">
-      <button class="select-file-btn" @click="selectFile">Select File</button>
-      <button class="process-btn" @click="processFile(false)" :disabled="!selectedFile">Execute Replace and Save</button>
-      <button class="reverse-process-btn" @click="processFile(true)" :disabled="!selectedFile">Reverse Replace and Save</button>
+      <button class="select-file-btn" @click="selectFile">{{ $t('selectFile') }}</button>
+      <button class="process-btn" @click="processFile(false)" :disabled="!selectedFile">{{ $t('executeReplaceAndSave') }}</button>
+      <button class="reverse-process-btn" @click="processFile(true)" :disabled="!selectedFile">{{ $t('reverseReplaceAndSave') }}</button>
     </div>
     <div v-if="selectedFile" class="file-preview">
-      <p>Selected File: {{ selectedFile }}</p>
+      <p>{{ $t('selectedFile') }}: {{ selectedFile }}</p>
       <div ref="docxContainer" class="docx-container"></div>
     </div>
   </div>
@@ -18,8 +18,13 @@ import { invoke } from "@tauri-apps/api/core";
 import { open } from "@tauri-apps/plugin-dialog";
 import { readFile } from "@tauri-apps/plugin-fs";
 import { renderAsync } from 'docx-preview';
+import { useI18n } from 'vue-i18n';
 
 export default {
+  setup() {
+    const { t } = useI18n();
+    return { t };
+  },
   data() {
     return {
       selectedFile: null,
@@ -55,11 +60,11 @@ export default {
     async processFile(reverse) {
       try {
         const newFilePath = await invoke("process_docx", { filePath: this.selectedFile, reverse });
-        alert(`文件已保存为: ${newFilePath}`);
+        alert(this.t('fileSavedAs', { path: newFilePath }));
         this.selectedFile = newFilePath;
         await this.loadFileContent();
       } catch (error) {
-        console.error("Error processing file:", error);
+        console.error(this.t('errorProcessingFile'), error);
       }
     },
     async renderDocx(binaryData) {
